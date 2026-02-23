@@ -1,7 +1,7 @@
 import json
 import numpy as np
 import h5py
-import machtopo
+import surftopo
 import sys
 import os 
 import time
@@ -120,7 +120,7 @@ def create_tool_from_sample(sample, config):
     derived = compute_derived(sample, config["grid"], terminal_output)
     fixed = config["fixed"]
 
-    tool = machtopo.Tool(
+    tool = surftopo.Tool(
         gama_f=sample["gama_f"],
         gama_p=sample["gama_p"],
         D=sample["Td"],
@@ -147,7 +147,7 @@ def run_surface_simulation(sample, config):
     """Compute only surface points."""
     tool, derived = create_tool_from_sample(sample, config)
 
-    return machtopo.run_surface_simulation(
+    return surftopo.run_surface_simulation(
         tool,
         d_x=derived["Lx"], m=derived["grid_m"],
         d_y=derived["Ly"], n=derived["grid_n"],
@@ -162,7 +162,7 @@ def run_trajectory_simulation(sample, config, trajectory_downsample=1):
     """Compute only trajectory points."""
     tool, derived = create_tool_from_sample(sample, config)
 
-    return machtopo.run_trajectory_simulation(
+    return surftopo.run_trajectory_simulation(
         tool,
         d_x=derived["Lx"], m=derived["grid_m"],
         d_y=derived["Ly"], n=derived["grid_n"],
@@ -197,7 +197,7 @@ def main(config_path):
 
     # --- Single case mode ---
     if config["mode"] == "single":
-        from plot_utils import (
+        from scripts.plot_utils import (
             plot_cutting_edge_trajectories,
             plot_surface_scatter,
             plot_cross_sections

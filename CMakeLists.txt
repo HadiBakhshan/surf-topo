@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(machtopo LANGUAGES CXX)
+project(surftopo LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -61,11 +61,11 @@ file(GLOB_RECURSE MODULE_SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 # -----------------------------
 # Build Python module
 # -----------------------------
-pybind11_add_module(machtopo ${MODULE_SOURCES})
-target_link_libraries(machtopo PRIVATE OpenMP::OpenMP_CXX)
+pybind11_add_module(surftopo ${MODULE_SOURCES})
+target_link_libraries(surftopo PRIVATE OpenMP::OpenMP_CXX)
 
 # Keep prefix empty for Python module
-set_target_properties(machtopo PROPERTIES PREFIX "")
+set_target_properties(surftopo PROPERTIES PREFIX "")
 
 # -----------------------------
 # Compiler optimizations
@@ -73,25 +73,25 @@ set_target_properties(machtopo PROPERTIES PREFIX "")
 if(MSVC)
 
     # Place .pyd directly in bin/ for Release
-    set_target_properties(machtopo PROPERTIES
+    set_target_properties(surftopo PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY_RELEASE ${OUTPUT_DIR}
         LIBRARY_OUTPUT_DIRECTORY_RELEASE ${OUTPUT_DIR}
     )
 
     # High-performance MSVC preset (Release only)
-    target_compile_options(machtopo PRIVATE
+    target_compile_options(surftopo PRIVATE
         $<$<CONFIG:Release>:/Ot>
         $<$<CONFIG:Release>:/GL>
         $<$<CONFIG:Release>:/fp:fast>
         $<$<CONFIG:Release>:/arch:AVX2>
     )
 
-    target_link_options(machtopo PRIVATE
+    target_link_options(surftopo PRIVATE
         $<$<CONFIG:Release>:/LTCG>
     )
 
     # Disable expensive safety/debug features
-    target_compile_definitions(machtopo PRIVATE
+    target_compile_definitions(surftopo PRIVATE
         $<$<CONFIG:Release>:_ITERATOR_DEBUG_LEVEL=0>
         $<$<CONFIG:Release>:_CRT_SECURE_NO_WARNINGS>
         $<$<CONFIG:Release>:_SCL_SECURE_NO_WARNINGS>
@@ -100,23 +100,23 @@ if(MSVC)
 else()
 
     # GCC / Clang
-    target_compile_options(machtopo PRIVATE
+    target_compile_options(surftopo PRIVATE
         -O3
         -march=native
         -fopenmp
     )
     
     # Optional: portable version
-    # target_compile_options(machtopo PRIVATE -O3 -march=x86-64-v3 -fopenmp)
+    # target_compile_options(surftopo PRIVATE -O3 -march=x86-64-v3 -fopenmp)
     
     # Optional LTO
     include(CheckCXXCompilerFlag)
     check_cxx_compiler_flag("-flto=4" COMPILER_SUPPORTS_FLTO4)
     if(COMPILER_SUPPORTS_FLTO4)
         message(STATUS "Enabling LTO with 4 threads")
-        set_target_properties(machtopo PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
-        target_compile_options(machtopo PRIVATE -flto=4)
-        target_link_options(machtopo PRIVATE -flto=4)
+        set_target_properties(surftopo PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+        target_compile_options(surftopo PRIVATE -flto=4)
+        target_link_options(surftopo PRIVATE -flto=4)
     endif()
 
 endif()
@@ -124,7 +124,7 @@ endif()
 # -----------------------------
 # Eigen performance tuning
 # -----------------------------
-target_compile_definitions(machtopo PRIVATE
+target_compile_definitions(surftopo PRIVATE
     EIGEN_NO_DEBUG
     EIGEN_FAST_MATH
 )
