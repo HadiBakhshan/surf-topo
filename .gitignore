@@ -10,3 +10,13 @@ cases/dataset/*/
 __pycache__/
 *.py[cod]
 *$py.class
+
+cases/exp/A1_1.csv
+
+cases/exp/A1_2.csv
+
+scripts/plot.py
+
+test_case_A1/cross_sections.png
+
+*.png

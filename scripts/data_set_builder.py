@@ -200,6 +200,7 @@ def main(config_path):
         from scripts.plot_utils import (
             plot_cutting_edge_trajectories,
             plot_surface_scatter,
+            plot_surface_topview,
             plot_cross_sections
         )
 
@@ -243,6 +244,8 @@ def main(config_path):
         # --- Surface scatter ---
         plot_surface_scatter(surface, m, n,
                             save_path=os.path.join(folder, "surface_scatter.png"))
+        
+        plot_surface_topview(surface, m, n, save_path=os.path.join(folder, "surface_top_view.png"))
 
         # --- Cross-sections ---
         plot_cross_sections(surface, m, n,
