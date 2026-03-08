@@ -232,10 +232,10 @@ def main(config_path):
         if len(trajectory)>0:            
             print("Trajectory points:", len(trajectory))
             plot_cutting_edge_trajectories(trajectory, plot_3d=False,
-                                        save_path=os.path.join(folder, "cutting_edge_trajectories_2D.png"))
+                                        save_path=os.path.join(folder, "Trajectories_2D.png"))
 
             plot_cutting_edge_trajectories(trajectory, plot_3d=True,
-                                        save_path=os.path.join(folder, "cutting_edge_trajectories_3D.png"))
+                                        save_path=os.path.join(folder, "Trajectories_3D.png"))
 
         
         m = compute_derived(sample, config["grid"])["grid_m"]  # X grid points
@@ -243,13 +243,13 @@ def main(config_path):
 
         # --- Surface scatter ---
         plot_surface_scatter(surface, m, n,
-                            save_path=os.path.join(folder, "surface_scatter.png"))
+                            save_path=os.path.join(folder, "Surface_3D.png"))
         
-        plot_surface_topview(surface, m, n, save_path=os.path.join(folder, "surface_top_view.png"))
+        plot_surface_topview(surface, m, n, save_path=os.path.join(folder, "Surface_2D.png"))
 
         # --- Cross-sections ---
         plot_cross_sections(surface, m, n,
-                            save_path=os.path.join(folder, "cross_sections.png"))
+                            save_path=os.path.join(folder, "Cross_Sections.png"))
 
         print(f"All plots saved in folder: {folder}")
         return
@@ -295,3 +295,5 @@ if __name__ == "__main__":
 
     config_path = sys.argv[1]
     main(config_path)
+
+

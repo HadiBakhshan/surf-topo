@@ -12,7 +12,6 @@ import time
 ###########################################################################
 
 
-
 class Tool:
     def __init__(self, gama_f, gama_p, D, eps_r, eps_a, phi, omega, v_f, x_0, y_0, z_0):
         # self.R = R              # cutting_edge_radius
@@ -453,13 +452,14 @@ def plot_cross_sections(surface, m, n,
 if __name__ == "__main__":
 
     start = time.perf_counter()
+    start_time = time.time()
     print('Simulation Start')
     #cutting parameters:
-    vc = 50                                         # cutting speed m/min
+    vc = 230                                         # cutting speed m/min
     Td = 10                                           # tool diameter mm
-    fz = 0.4                                          # feed per tooth mm/tooth
+    fz = 0.6                                          # feed per tooth mm/tooth
     z = 2                                             # number of teeth / number of cutting edges
-    ap = 0.4                                          # axial depth of the cut mm
+    ap = 0.5                                          # axial depth of the cut mm
     gama_f = 0.6
     gama_p=0.0
 
@@ -471,7 +471,7 @@ if __name__ == "__main__":
     w = ws * np.pi / 30;                              # spindle speed (rad/s)
 
 
-    tool = Tool(gama_f, gama_p, D=Td, eps_r=-0.026, eps_a=0.009,
+    tool = Tool(gama_f, gama_p, D=Td, eps_r=-0.0, eps_a=0.0,
                 phi=90, omega=w, v_f=vf, x_0=5, y_0=-5, z_0=0)
 
 
@@ -490,10 +490,10 @@ if __name__ == "__main__":
     print('Total process time:', round(total_time, 2), 's')
 
     sim = Simulation(tool, d_x=Lx, m=grid_m, d_y=Ly, n=grid_n, z_levels=ap, R=ri,
-                     edge_points=grid_t, z_n=z, t_total=total_time, delta_t=0.8e-6)
+                     edge_points=grid_t, z_n=z, t_total=total_time, delta_t=0.8e-7)
     
     # --- Start timer ---
-    start_time = time.time()
+    
     
     surface, trajectory_points = sim.run()
 
@@ -505,10 +505,11 @@ if __name__ == "__main__":
     
     print('Simulation End')
 
-
-    plot_cutting_edge_trajectories(trajectory_points, plot_3d=False) # 2D
-    plot_surface_scatter(surface, m=grid_m, n=grid_n)
-    plot_cross_sections(surface, m=grid_m, n=grid_n)
+    print("Trajectory points:", len(trajectory_points))
+    
+    # plot_cutting_edge_trajectories(trajectory_points, plot_3d=False) # 2D
+    # plot_surface_scatter(surface, m=grid_m, n=grid_n)
+    # plot_cross_sections(surface, m=grid_m, n=grid_n)
 
 
     end = time.perf_counter()
