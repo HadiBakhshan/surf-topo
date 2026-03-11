@@ -20,3 +20,9 @@ scripts/plot.py
 test_case_A1/cross_sections.png
 
 *.png
+
+*.h5
+
+*.npy
+
+*.pth

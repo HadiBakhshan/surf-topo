@@ -99,8 +99,28 @@ def plot_surface_scatter(
     # -----------------------------
     # Average height calculation
     # -----------------------------
-    z_avg = np.nanmean(z_flat)   # mean height in µm
-    print(f"Average surface height: {z_avg:.3f} µm")
+    # z_avg = np.nanmean(z_flat)   # mean height in µm
+    # print(f"Average surface height: {z_avg:.3f} µm")
+
+    # -----------------------------
+    # Surface roughness parameters
+    # -----------------------------
+
+    # Mean height
+    z_mean = np.mean(z_flat)
+
+    # Ra: arithmetic average roughness
+    Ra = np.mean(np.abs(z_flat - z_mean))
+
+    # Rq: root mean square roughness
+    Rq = np.sqrt(np.mean(z_flat**2))
+
+    # Rz: peak-to-valley height
+    Rz = np.max(z_flat) - np.min(z_flat)
+
+    print(f"Ra (average roughness): {Ra:.3f} µm")
+    print(f"Rq (RMS roughness): {Rq:.3f} µm")
+    print(f"Rz (peak-to-valley): {Rz:.3f} µm")
 
     norm = plt.Normalize(vmin=z_min, vmax=z_max)
     colors = cm.get_cmap(cmap)(norm(z_flat))
@@ -267,7 +287,7 @@ def plot_surface_topview(
     # Optional: make ticks point inward
     ax.tick_params(direction='in')
 
-    Colorbar
+    # Colorbar
     cbar_ax = fig.add_axes([0.1, 0.93, 0.8, 0.02])
     cbar = fig.colorbar(c, cax=cbar_ax, orientation='horizontal')
 
