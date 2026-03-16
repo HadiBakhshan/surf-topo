@@ -1,7 +1,7 @@
 # surf-topo
 An efficient computational framework for prediction of 3D surface topography of machined surfaces 
 
-High-performance simulation for generating machined surface and tool trajectory data in milling processes.
+High-fidelity simulation for generating machined surface and tool trajectory data in milling processes.
 The project is implemented in C++ with Python bindings via pybind11 for easy scripting and analysis.
 
 ---
@@ -360,7 +360,7 @@ This returns **NumPy arrays** for surface and trajectory points.
 
 ## 12. License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the **BSD 3-Clause License**.
 
 External dependencies such as **Eigen** and **pybind11** retain their original licenses.
 
