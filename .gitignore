@@ -1,31 +1,18 @@
-# Build artifacts
+# Build
 /build/
 /bin/
 
-# Ignore all directories inside cases/single, but keep files
-cases/single/*/
-cases/dataset/*/
-cases/exp/*/
+# Ignore experiment data
+cases/exp/
 
-# Python bytecode
+# Python
 __pycache__/
 *.py[cod]
-*$py.class
 
-cases/exp/A1_1.csv
-
-cases/exp/A1_2.csv
-
-scripts/plot.py
-
-test_case_A1/cross_sections.png
-
-*.png
-
+# Data / models
 *.h5
-
 *.npy
-
 *.pth
 
-*.csv
+# Images
+*.png
