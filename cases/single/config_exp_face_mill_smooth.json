@@ -1,0 +1,29 @@
+{
+  "mode": "single",
+  "case_name": "exp_face_mill_smooth",
+  "input": {
+    "vc": 125.0,
+    "fz": 0.0314,
+    "eps_r": 0.0,
+    "eps_a": 0.005,
+    "z": 4,
+    "ri": 6       
+  },
+  "fixed": {
+    "phi":100,
+    "Td": 40.0,
+    "ap": 2.5,    
+    "gama_f": 0.0,
+    "gama_p": 0.0,
+    "x_0": 3.6,
+    "y_0": 4.0,
+    "z_0": 0.0
+  },
+  "grid": {
+    "grid_base": 200,
+    "length": 5.7
+  },
+  "integration": {
+    "delta_t": 0.8e-6
+  }
+}

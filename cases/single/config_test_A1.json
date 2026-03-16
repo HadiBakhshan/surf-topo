@@ -2,17 +2,17 @@
   "mode": "single",
   "case_name": "test_case_A1",
   "input": {
-    "vc": 260.0,
-    "fz": 0.45,
-    "eps_r": -0.02,
-    "eps_a": 0.005,
-    "z": 3,
+    "vc": 170.0,
+    "fz": 0.6,
+    "eps_r": 0.011,
+    "eps_a": 0.003,
+    "z": 2,
     "ri": 5       
   },
   "fixed": {
     "phi":90,
     "Td": 10.0,
-    "ap": 0.4,    
+    "ap": 0.5,    
     "gama_f": 0.6,
     "gama_p": 0.0,
     "x_0": 5.0,

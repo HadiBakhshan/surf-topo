@@ -71,7 +71,7 @@ def plot_cutting_edge_trajectories(trajectory_points, plot_3d=False, save_path=N
 def plot_surface_scatter(
     surface,
     m, n,
-    elev=30, azim=50,
+    elev=45, azim=50,
     cmap='jet',
     size=15,
     fixed_zlim=None,
@@ -96,34 +96,51 @@ def plot_surface_scatter(
 
     z_min, z_max = np.nanmin(z_flat), np.nanmax(z_flat)
 
-    # -----------------------------
-    # Average height calculation
-    # -----------------------------
-    # z_avg = np.nanmean(z_flat)   # mean height in µm
-    # print(f"Average surface height: {z_avg:.3f} µm")
-
-    # -----------------------------
-    # Surface roughness parameters
-    # -----------------------------
-
     # Mean height
     z_mean = np.mean(z_flat)
 
-    # Ra: arithmetic average roughness
-    Ra = np.mean(np.abs(z_flat - z_mean))
+    # Centered heights
+    z_centered = z_flat - z_mean
 
-    # Rq: root mean square roughness
-    Rq = np.sqrt(np.mean(z_flat**2))
+    # Sa: arithmetic average roughness
+    Sa = np.mean(np.abs(z_centered))
 
-    # Rz: peak-to-valley height
-    Rz = np.max(z_flat) - np.min(z_flat)
+    # Sq: root mean square roughness
+    Sq = np.sqrt(np.mean(z_centered**2))
 
-    print(f"Ra (average roughness): {Ra:.3f} µm")
-    print(f"Rq (RMS roughness): {Rq:.3f} µm")
-    print(f"Rz (peak-to-valley): {Rz:.3f} µm")
+    # Sz: peak-to-valley height
+    Sz = np.max(z_flat) - np.min(z_flat)
 
-    norm = plt.Normalize(vmin=z_min, vmax=z_max)
+    # Sp: maximum peak height
+    Sp = np.max(z_centered)
+
+    # Sv: maximum valley depth
+    Sv = -np.min(z_centered)
+
+    # Ssk: skewness
+    Ssk = np.mean(z_centered**3) / (Sq**3)
+
+    # Sku: kurtosis
+    Sku = np.mean(z_centered**4) / (Sq**4)
+
+    print(f"Sa (average roughness): {Sa:.3f} µm")
+    print(f"Sq (RMS roughness): {Sq:.3f} µm")
+    print(f"Sz (peak-to-valley): {Sz:.3f} µm")
+
+    print(f"Sp (max peak height): {Sp:.3f} µm")
+    print(f"Sv (max valley depth): {Sv:.3f} µm")
+    print(f"Ssk (skewness): {Ssk:.3f}")
+    print(f"Sku (kurtosis): {Sku:.3f}")
+
+        
+    margin = 6
+
+    vmin = z_min
+    vmax = z_max + margin
+
+    norm = plt.Normalize(vmin, vmax)
     colors = cm.get_cmap(cmap)(norm(z_flat))
+
 
     # -----------------------------
     # Figure (tight layout, no margins)
@@ -131,7 +148,6 @@ def plot_surface_scatter(
     fig = plt.figure(figsize=(10, 7))
     ax = fig.add_subplot(111, projection='3d')
 
-    # Remove outer white margins
     fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
 
     # -----------------------------
@@ -144,21 +160,17 @@ def plot_surface_scatter(
     # -----------------------------
     ax.set_xlabel("X (mm) [Pick-feed dir. \u2192]", labelpad=40, fontsize=20)
     ax.set_ylabel("Y (mm) [Feed dir. \u2190]", labelpad=25, fontsize=20)
-    # ax.set_zlabel("Z (μm)", rotation=90, labelpad=15, fontsize=20)
 
     # -----------------------------
     # Axis limits
     # -----------------------------
-    # ax.set_xlim(np.min(x_flat), np.max(x_flat))
-    # ax.set_ylim(np.min(y_flat), np.max(y_flat))
-
     ax.set_xlim(np.max(x_flat), np.min(x_flat))
     ax.set_ylim(np.max(y_flat), np.min(y_flat))
     ax.set_zlim(-10, 5)
 
     ax.tick_params(axis='x', labelsize=18)
     ax.tick_params(axis='y', labelsize=18)
-    ax.tick_params(axis='z', labelsize=18)
+    ax.tick_params(axis='z', labelsize=15)
 
     if fixed_zlim is not None:
         ax.set_zlim(-fixed_zlim, fixed_zlim)
@@ -166,14 +178,15 @@ def plot_surface_scatter(
         z_margin = 0.05 * (z_max - z_min) if z_max != z_min else 1
         ax.set_zlim(z_min - z_margin, z_max + z_margin)
 
-    ax.set_zlim(-10, z_max)
-    ax.set_zticks(np.linspace(-10, 10, 3))
+    ax.set_zlim(-10, vmax)
+    ax.set_zticks(np.linspace(-10, 10, 5))
     ax.zaxis.set_major_formatter('{:.0f}'.format)
 
     # -----------------------------
     # Remove grid and panes
     # -----------------------------
     ax.grid(False)
+
     ax.xaxis.pane.fill = False
     ax.yaxis.pane.fill = False
     ax.zaxis.pane.fill = False
@@ -182,7 +195,6 @@ def plot_surface_scatter(
     ax.yaxis.pane.set_edgecolor('none')
     ax.zaxis.pane.set_edgecolor('none')
 
-
     # -----------------------------
     # View and aspect
     # -----------------------------
@@ -190,34 +202,42 @@ def plot_surface_scatter(
     ax.set_box_aspect(box_aspect)
 
     # -----------------------------
-    # Compact colorbar (close to plot)
+    # Vertical colorbar on right
     # -----------------------------
-    cbar_ax = fig.add_axes([0.15, 0.62, 0.18, 0.02])
+    cbar_ax = fig.add_axes([0.92, 0.15, 0.022, 0.7])
     # [left, bottom, width, height]
 
     mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
     mappable.set_array(z_flat)
 
-    cbar = fig.colorbar(mappable, cax=cbar_ax, orientation='horizontal')
+    cbar = fig.colorbar(mappable, cax=cbar_ax, orientation='vertical')
 
-    cbar.ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))
+    # Evenly spaced ticks along the vertical bar
+    ticks = np.linspace(vmin, vmax, 6)[1:-1]  # exclude min and max if desired
+    cbar.set_ticks(ticks)
+    cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
 
-    # Move label to RIGHT side
-    cbar.ax.set_xlabel("μm", fontsize=9, labelpad=5)
-    cbar.ax.xaxis.set_label_position("top")
-    cbar.ax.xaxis.set_ticks_position('top')   # move numbers to top
-    mid_vals = np.linspace(z_min, z_max, 6)[1:-1]
-    cbar.set_ticks(mid_vals)
-    cbar.ax.tick_params(length=5, direction='in')
+    # Set label
+    cbar.set_label("μm", fontsize=16, labelpad=10)
 
+    # Tick parameters
+    cbar.ax.tick_params(
+        labelsize=16,
+        length=6,
+        width=1,
+        direction='in'
+    )
+
+    # -----------------------------
+    # Tick spacing
+    # -----------------------------
     ax.xaxis.set_tick_params(pad=14)
     ax.yaxis.set_tick_params(pad=18)
-    ax.zaxis.set_tick_params(pad=10)
+    ax.zaxis.set_tick_params(pad=15)
 
-    cbar.ax.set_xlabel("μm", fontsize=16, labelpad=7)
-    cbar.ax.tick_params(labelsize=18)
-
-    # plt.show()
+    # -----------------------------
+    # Save / show
+    # -----------------------------
     if save_path is not None:
         plt.savefig(save_path)
         plt.close()
@@ -229,13 +249,13 @@ def plot_surface_scatter(
 # 2D TOPOGRAPHY
 # ==========================================================
 
-
 def plot_surface_topview(
     surface,
     m, n,
     cmap='jet',
     fixed_zlim=None,
-    save_path=None):
+    save_path=None
+):
 
     X = surface[:, 0].reshape((m + 1, n + 1))
     Y = surface[:, 1].reshape((m + 1, n + 1))
@@ -252,54 +272,67 @@ def plot_surface_topview(
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
 
+    margin = 6
+    vmax = z_max + margin
+
     # 🔹 Swap X and Y here
-    c = ax.pcolormesh(Y, X, Z_um,
-                      cmap=cmap,
-                      shading='auto',
-                      vmin=vmin,
-                      vmax=vmax)
+    c = ax.pcolormesh(
+        Y, X, Z_um,
+        cmap=cmap,
+        shading='auto',
+        vmin=vmin,
+        vmax=vmax
+    )
 
     # 🔹 Swap labels
     ax.set_xlabel("Y (mm)")
-    ax.set_ylabel("X (mm)", rotation = 270, labelpad=15)
+    ax.set_ylabel("X (mm)", rotation=270, labelpad=15)
 
     ax.set_xlim(np.min(Y), np.max(Y))   # Y normal (left → right)
     ax.set_ylim(np.max(X), np.min(X))   # X inverted (top → down)
-
 
     ax.set_aspect('equal')
 
     # --- Move horizontal axis to top ---
     ax.xaxis.set_ticks_position('top')
-    # ax.xaxis.set_label_position('top')
 
     # --- Move vertical axis to right ---
-    # ax.yaxis.set_ticks_position('right')
     ax.yaxis.set_label_position('right')
 
-
+    # --- Main numbers only ---
+    # You can pick e.g., 3 ticks for X, 3 for Y
     x_ticks = np.linspace(np.min(Y), np.max(Y), 3)
-    y_ticks = np.linspace(np.min(X), np.max(X), 5)
+    y_ticks = np.linspace(np.min(X), np.max(X), 3)
 
     ax.set_xticks(x_ticks)
     ax.set_yticks(y_ticks)
 
     # Optional: make ticks point inward
-    ax.tick_params(direction='in')
+    ax.tick_params(direction='in', labelsize=12)
 
-    # Colorbar
-    cbar_ax = fig.add_axes([0.1, 0.93, 0.8, 0.02])
-    cbar = fig.colorbar(c, cax=cbar_ax, orientation='horizontal')
+    # -----------------------------
+    # Vertical colorbar on right
+    # -----------------------------
+    cbar_ax = fig.add_axes([0.88, 0.1, 0.022, 0.7])
+    # [left, bottom, width, height] → right-hand side, tall vertical bar
 
-    cbar.ax.xaxis.set_ticks_position('top')
-    cbar.ax.xaxis.set_label_position('top')
-    cbar.ax.tick_params(direction='in')
-    cbar.ax.xaxis.set_major_formatter('{:.0f}'.format)
-    cbar.set_label("μm")
+    cbar = fig.colorbar(c, cax=cbar_ax, orientation='vertical')
 
-    plt.show()
+    # You can control which numbers appear on the colorbar
+    # For example, show only main ticks (like 0, 2, 4)
+    num_ticks = 5  # choose how many tick labels
+    ticks = np.linspace(vmin, vmax, 6)[1:-1]  # exclude min and max if desired
+    cbar.set_ticks(ticks)
+    cbar.ax.yaxis.set_major_formatter('{:.0f}'.format)
+
+    cbar.ax.tick_params(labelsize=12, direction='in')
+    cbar.set_label("μm", fontsize=14, labelpad=10)
+
+    # -----------------------------
+    # Show or save
+    # -----------------------------
     if save_path is not None:
-        plt.savefig(save_path)
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
         plt.close()
     else:
         plt.show()
@@ -309,6 +342,9 @@ def plot_surface_topview(
 # ROUGHNESS PLOT
 # ==========================================================
 
+import os
+import pandas as pd
+from scipy.signal import savgol_filter
 
 def plot_cross_sections(surface, m, n,
                         y_index=None, x_index=None,
@@ -318,18 +354,12 @@ def plot_cross_sections(surface, m, n,
                         exp_y_file=r"D:\Codes\surf-topo\cases\exp\A3_2.csv",
                         save_path=None):
 
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import os
-    import pandas as pd
-    from scipy.signal import savgol_filter
-
     # -----------------------------
     # Reshape surface
     # -----------------------------
     X = surface[:, 0].reshape((m + 1, n + 1))
     Y = surface[:, 1].reshape((m + 1, n + 1))
-    Z_um = surface[:, 2].reshape((m + 1, n + 1)) * 1000  # mm → µm
+    Z_um = surface[:, 2].reshape((m + 1, n + 1)) * 1000
 
     if y_index is None:
         y_index = (n + 1) // 2
@@ -346,135 +376,131 @@ def plot_cross_sections(surface, m, n,
         return savgol_filter(z, window, poly_order)
 
     # -----------------------------
-    # Integral-based mean function
-    # -----------------------------
-    def integral_mean(x, z):
-        """Compute mean height using integral definition."""
-        if x is None or z is None:
-            return None
-        length = x.max() - x.min()
-        if length == 0:
-            return np.mean(z)
-        area = np.trapz(z, x)
-        return area / length
-
-    # -----------------------------
     # Cross-section along X
     # -----------------------------
     y_start = max(0, y_index - band_width)
     y_end = min(n + 1, y_index + band_width + 1)
+
     z_band_x = Z_um[:, y_start:y_end]
     z_line_x = np.mean(z_band_x, axis=1)
     x_line = X[:, y_index]
+
     z_smooth_x = safe_savgol(z_line_x)
+    z_center_x = z_smooth_x - np.mean(z_smooth_x)
 
     # -----------------------------
     # Cross-section along Y
     # -----------------------------
     x_start = max(0, x_index - band_width)
     x_end = min(m + 1, x_index + band_width + 1)
+
     z_band_y = Z_um[x_start:x_end, :]
     z_line_y = np.mean(z_band_y, axis=0)
     y_line = Y[x_index, :]
+
     z_smooth_y = safe_savgol(z_line_y)
+    z_center_y = z_smooth_y - np.mean(z_smooth_y)
+
+    # -----------------------------
+    # Profile Roughness Metrics
+    # -----------------------------
+    def profile_metrics(z):
+
+        Ra = np.mean(np.abs(z))
+        Rq = np.sqrt(np.mean(z**2))
+
+        Rp = np.max(z)
+        Rv = -np.min(z)
+
+        Rt = Rp + Rv
+        Rz = Rt   # simplified definition for a single profile
+
+        return Ra, Rq, Rt, Rz, Rp, Rv
+
+    Ra_x, Rq_x, Rt_x, Rz_x, Rp_x, Rv_x = profile_metrics(z_center_x)
+    Ra_y, Rq_y, Rt_y, Rz_y, Rp_y, Rv_y = profile_metrics(z_center_y)
+
+    print("\n===== PROFILE ROUGHNESS PARAMETERS (µm) =====")
+
+    print("\nX-direction profile (Pick-feed direction)")
+    print(f"Ra = {Ra_x:.3f}")
+    print(f"Rq = {Rq_x:.3f}")
+    print(f"Rt = {Rt_x:.3f}")
+    print(f"Rz = {Rz_x:.3f}")
+    print(f"Rp = {Rp_x:.3f}")
+    print(f"Rv = {Rv_x:.3f}")
+
+    print("\nY-direction profile (Feed direction)")
+    print(f"Ra = {Ra_y:.3f}")
+    print(f"Rq = {Rq_y:.3f}")
+    print(f"Rt = {Rt_y:.3f}")
+    print(f"Rz = {Rz_y:.3f}")
+    print(f"Rp = {Rp_y:.3f}")
+    print(f"Rv = {Rv_y:.3f}")
+
+    print("\n============================================\n")
 
     # -----------------------------
     # Experimental data loader
     # -----------------------------
     def load_profile(path):
+
         if not os.path.exists(path):
             print(f"Experimental file not found: {path}")
             return None, None
+
         try:
             if path.lower().endswith(".csv"):
                 data = pd.read_csv(path, header=None)
             else:
                 data = pd.read_excel(path, header=None, engine="openpyxl")
+
             return data.iloc[:, 0].values, data.iloc[:, 1].values
+
         except Exception as e:
             print(f"Error loading experimental file {path}: {e}")
             return None, None
 
+
     exp_x, exp_zx = load_profile(exp_x_file)
     exp_y, exp_zy = load_profile(exp_y_file)
-
-    # -----------------------------
-    # Compute integral-based means
-    # -----------------------------
-    mean_pred_x = integral_mean(x_line, z_smooth_x)
-    mean_pred_y = integral_mean(y_line, z_smooth_y)
-
-    mean_exp_x = integral_mean(exp_x, exp_zx) if exp_x is not None else None
-    mean_exp_y = integral_mean(exp_y, exp_zy) if exp_y is not None else None
-
-
-    print("\n===== CROSS-SECTION MEAN HEIGHTS (µm) =====")
-    
-    # if mean_exp_x is not None:
-    #     print(f"Experimental X-section mean: {mean_exp_x:.3f}")
-
-    print(f"Prediction Y-section mean (Feed direction): {mean_pred_y:.3f}")
-
-    print(f"Prediction X-section mean (pick-feed direction): {mean_pred_x:.3f}")
-    # if mean_exp_y is not None:
-    #     print(f"Experimental Y-section mean: {mean_exp_y:.3f}")
-    print("==========================================\n")
 
     # -----------------------------
     # Plotting
     # -----------------------------
     fig, axes = plt.subplots(2, 1, figsize=(12, 5))
 
-    def apply_axis_rules(ax, exp_axis):
-        if exp_axis is not None:
-            ax.set_xlim(np.min(exp_axis), np.max(exp_axis))
-        ax.set_ylim(-10, 10)
-
-        ax.legend(loc='lower center',
-                  bbox_to_anchor=(0.5, 0.01),
-                  ncol=2,
-                  frameon=False)
-
-    def draw_mean_line(ax, mean_val, label):
-        ax.axhline(mean_val, linewidth=1.2)
-        ax.text(ax.get_xlim()[1],
-                mean_val,
-                f"{label}: {mean_val:.2f}",
-                va='center',
-                ha='right',
-                fontsize=9)
-
     # ---- X profile ----
     axes[0].plot(x_line, z_smooth_x, linewidth=2, label="Prediction")
 
-    if exp_x is not None:
-        axes[0].plot(exp_x, exp_zx, '--o', markersize=3,
-                     linewidth=2, label="Experimental")
+    # Experimental curve (disabled)
+    # if exp_x is not None:
+    #     axes[0].plot(exp_x, exp_zx, '--o', markersize=3, linewidth=2, label="Experimental")
 
     axes[0].set_xlabel("X (mm)")
-    axes[0].set_ylabel("Z (μm)")
+    axes[0].set_ylabel("Z (µm)")
     axes[0].grid(False)
-    apply_axis_rules(axes[0], exp_x)
 
-    # draw_mean_line(axes[0], mean_pred_x, "Mean Pred")
-    # if mean_exp_x is not None:
-    #     draw_mean_line(axes[0], mean_exp_x, "Mean Exp")
+    axes[0].set_xticks(np.linspace(x_line.min(), x_line.max(), 3))
+    axes[0].set_yticks(np.linspace(z_smooth_x.min(), z_smooth_x.max(), 5))
+
+    axes[0].legend(frameon=False)
 
     # ---- Y profile ----
     axes[1].plot(y_line, z_smooth_y, linewidth=2, label="Prediction")
 
-    if exp_y is not None:
-        axes[1].plot(exp_y, exp_zy, '--o', markersize=3,
-                     linewidth=2, label="Experimental")
+    # Experimental curve (disabled)
+    # if exp_y is not None:
+    #     axes[1].plot(exp_y, exp_zy, '--o', markersize=3, linewidth=2, label="Experimental")
 
     axes[1].set_xlabel("Y (mm)")
-    axes[1].set_ylabel("Z (μm)")
+    axes[1].set_ylabel("Z (µm)")
     axes[1].grid(False)
-    apply_axis_rules(axes[1], exp_y)
 
-    # draw_mean_line(axes[1], mean_pred_y, "Mean Pred")
-    # if mean_exp_y is not None:
-    #     draw_mean_line(axes[1], mean_exp_y, "Mean Exp")
+    axes[1].set_xticks(np.linspace(y_line.min(), y_line.max(), 3))
+    axes[1].set_yticks(np.linspace(z_smooth_y.min(), z_smooth_y.max(), 5))
+
+    axes[1].legend(frameon=False)
 
     plt.tight_layout(rect=[0, 0, 1, 0.95])
 

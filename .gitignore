@@ -5,6 +5,7 @@
 # Ignore all directories inside cases/single, but keep files
 cases/single/*/
 cases/dataset/*/
+cases/exp/*/
 
 # Python bytecode
 __pycache__/
@@ -26,3 +27,5 @@ test_case_A1/cross_sections.png
 *.npy
 
 *.pth
+
+*.csv
