@@ -17,7 +17,7 @@
     "gama_f": 0.6,
     "gama_p": 0.0,
     "x_0": 5.0,
-    "y_0": -5.0,
+    "y_0": -7.0,
     "z_0": 0.0
   },
 
@@ -27,12 +27,12 @@
   },
 
   "integration": {
-    "delta_t": 8e-6
+    "delta_t": 0.8e-6
   },
 
   "sampling": {
     "method": "lhs",
-    "n_samples": 20000,
+    "n_samples": 100,
     "seed": 42
   }
 }

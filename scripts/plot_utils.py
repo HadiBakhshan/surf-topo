@@ -133,7 +133,8 @@ def plot_surface_scatter(
     print(f"Sku (kurtosis): {Sku:.3f}")
 
         
-    margin = 6
+    margin = 0.05
+    # margin = 0
 
     vmin = z_min
     vmax = z_max + margin
@@ -245,6 +246,173 @@ def plot_surface_scatter(
         plt.show()
 
 
+
+
+# def plot_surface_scatter(
+#     surface,
+#     m, n,
+#     elev=45, azim=50,
+#     cmap='jet',
+#     size=15,
+#     color_min=0,        # ⭐ manual color scale min
+#     color_max=2,        # ⭐ manual color scale max
+#     fixed_zlim=None,
+#     box_aspect=(1, 0.5, 0.1),
+#     save_path=None):
+#     """
+#     Plot a 3D scatter of structured (N, 3) surface data,
+#     colored by Z values, with optional manual control of color scale.
+#     """
+
+#     import numpy as np
+#     import matplotlib.pyplot as plt
+#     import matplotlib.cm as cm
+#     from matplotlib.ticker import FormatStrFormatter
+
+#     # -----------------------------
+#     # Extract and reshape
+#     # -----------------------------
+#     X = surface[:, 0].reshape((m + 1, n + 1))
+#     Y = surface[:, 1].reshape((m + 1, n + 1))
+#     Z_mm = surface[:, 2].reshape((m + 1, n + 1))
+#     Z_um = Z_mm * 1000
+
+#     x_flat = X.ravel()
+#     y_flat = Y.ravel()
+#     z_flat = Z_um.ravel()
+
+#     z_min = np.nanmin(z_flat)
+#     z_max = np.nanmax(z_flat)
+
+#     # -----------------------------
+#     # Mean height & roughness stats
+#     # -----------------------------
+#     z_mean = np.mean(z_flat)
+#     z_centered = z_flat - z_mean
+#     Sa = np.mean(np.abs(z_centered))
+#     Sq = np.sqrt(np.mean(z_centered**2))
+#     Sz = np.max(z_flat) - np.min(z_flat)
+#     Sp = np.max(z_centered)
+#     Sv = -np.min(z_centered)
+#     Ssk = np.mean(z_centered**3) / (Sq**3)
+#     Sku = np.mean(z_centered**4) / (Sq**4)
+
+#     print(f"Sa (average roughness): {Sa:.3f} µm")
+#     print(f"Sq (RMS roughness): {Sq:.3f} µm")
+#     print(f"Sz (peak-to-valley): {Sz:.3f} µm")
+#     print(f"Sp (max peak height): {Sp:.3f} µm")
+#     print(f"Sv (max valley depth): {Sv:.3f} µm")
+#     print(f"Ssk (skewness): {Ssk:.3f}")
+#     print(f"Sku (kurtosis): {Sku:.3f}")
+
+#     # -----------------------------
+#     # Manual color scale
+#     # -----------------------------
+#     if color_min is None:
+#         vmin = z_min
+#     else:
+#         vmin = color_min
+
+#     if color_max is None:
+#         vmax = z_max
+#     else:
+#         vmax = color_max
+
+#     norm = plt.Normalize(vmin, vmax)
+#     colors = cm.get_cmap(cmap)(norm(z_flat))
+
+#     # -----------------------------
+#     # Figure setup
+#     # -----------------------------
+#     fig = plt.figure(figsize=(10, 7))
+#     ax = fig.add_subplot(111, projection='3d')
+#     fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
+
+#     # -----------------------------
+#     # Scatter
+#     # -----------------------------
+#     ax.scatter(x_flat, y_flat, z_flat, c=colors, s=size)
+
+#     # -----------------------------
+#     # Axis labels
+#     # -----------------------------
+#     ax.set_xlabel("X (mm) [Pick-feed dir. \u2192]", labelpad=40, fontsize=20)
+#     ax.set_ylabel("Y (mm) [Feed dir. \u2190]", labelpad=25, fontsize=20)
+
+#     # -----------------------------
+#     # Axis limits
+#     # -----------------------------
+#     ax.set_xlim(np.max(x_flat), np.min(x_flat))
+#     ax.set_ylim(np.max(y_flat), np.min(y_flat))
+
+#     if fixed_zlim is not None:
+#         ax.set_zlim(-fixed_zlim, fixed_zlim)
+#         z_tick_min, z_tick_max = -fixed_zlim, fixed_zlim
+#     else:
+#         z_margin = 0.05 * (z_max - z_min) if z_max != z_min else 1
+#         z_tick_min = z_min - z_margin
+#         z_tick_max = z_max + z_margin
+#         ax.set_zlim(z_tick_min, z_tick_max)
+
+#     ax.set_zticks(np.linspace(z_tick_min, z_tick_max, 5))
+#     ax.zaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+
+#     ax.tick_params(axis='x', labelsize=18)
+#     ax.tick_params(axis='y', labelsize=18)
+#     ax.tick_params(axis='z', labelsize=15)
+
+#     # -----------------------------
+#     # Remove grid and panes
+#     # -----------------------------
+#     ax.grid(False)
+#     ax.xaxis.pane.fill = False
+#     ax.yaxis.pane.fill = False
+#     ax.zaxis.pane.fill = False
+#     ax.xaxis.pane.set_edgecolor('none')
+#     ax.yaxis.pane.set_edgecolor('none')
+#     ax.zaxis.pane.set_edgecolor('none')
+
+#     # -----------------------------
+#     # View and aspect
+#     # -----------------------------
+#     ax.view_init(elev=elev, azim=azim)
+#     ax.set_box_aspect(box_aspect)
+
+#     # -----------------------------
+#     # Vertical colorbar
+#     # -----------------------------
+#     cbar_ax = fig.add_axes([0.92, 0.15, 0.022, 0.7])
+#     mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
+#     mappable.set_array(z_flat)
+#     cbar = fig.colorbar(mappable, cax=cbar_ax, orientation='vertical')
+
+#     ticks = np.linspace(vmin, vmax, 6)[1:-1]
+#     cbar.set_ticks(ticks)
+#     cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+#     cbar.set_label("μm", fontsize=16, labelpad=10)
+#     cbar.ax.tick_params(labelsize=16, length=6, width=1, direction='in')
+
+#     # -----------------------------
+#     # Tick spacing
+#     # -----------------------------
+#     ax.xaxis.set_tick_params(pad=14)
+#     ax.yaxis.set_tick_params(pad=18)
+#     ax.zaxis.set_tick_params(pad=15)
+
+#     # -----------------------------
+#     # Save or show
+#     # -----------------------------
+#     if save_path is not None:
+#         plt.savefig(save_path)
+#         plt.close()
+#     else:
+#         plt.show()
+
+
+
+
+
+
 # ==========================================================
 # 2D TOPOGRAPHY
 # ==========================================================
@@ -272,7 +440,8 @@ def plot_surface_topview(
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
 
-    margin = 6
+    margin = 0.05
+    # margin = 0
     vmax = z_max + margin
 
     # 🔹 Swap X and Y here
@@ -336,6 +505,107 @@ def plot_surface_topview(
         plt.close()
     else:
         plt.show()
+
+
+
+
+
+# def plot_surface_topview(
+#     surface,
+#     m, n,
+#     cmap='jet',
+#     color_min=0,     # ⭐ manual color scale min
+#     color_max=2,     # ⭐ manual color scale max
+#     save_path=None
+# ):
+
+#     import numpy as np
+#     import matplotlib.pyplot as plt
+
+#     X = surface[:, 0].reshape((m + 1, n + 1))
+#     Y = surface[:, 1].reshape((m + 1, n + 1))
+#     Z_mm = surface[:, 2].reshape((m + 1, n + 1))
+#     Z_um = Z_mm * 1000
+
+#     # -----------------------------
+#     # REAL DATA RANGE
+#     # -----------------------------
+#     z_min = np.nanmin(Z_um)
+#     z_max = np.nanmax(Z_um)
+
+#     # -----------------------------
+#     # COLOR SCALE CONTROL
+#     # -----------------------------
+#     if color_min is None:
+#         vmin = z_min
+#     else:
+#         vmin = color_min
+
+#     if color_max is None:
+#         vmax = z_max
+#     else:
+#         vmax = color_max
+
+#     # -----------------------------
+#     # FIGURE
+#     # -----------------------------
+#     fig = plt.figure(figsize=(8, 6))
+#     ax = fig.add_axes([0.1, 0.1, 0.75, 0.8])
+
+#     # -----------------------------
+#     # PCOLORMESH (COLOR CONTOURS)
+#     # -----------------------------
+#     c = ax.pcolormesh(
+#         Y, X, Z_um,
+#         cmap=cmap,
+#         shading='auto',
+#         vmin=vmin,
+#         vmax=vmax
+#     )
+
+#     # -----------------------------
+#     # AXIS STYLE
+#     # -----------------------------
+#     ax.set_xlabel("Y (mm)")
+#     ax.set_ylabel("X (mm)", rotation=270, labelpad=15)
+
+#     ax.set_xlim(np.min(Y), np.max(Y))
+#     ax.set_ylim(np.max(X), np.min(X))
+
+#     ax.set_aspect('equal')
+
+#     ax.xaxis.set_ticks_position('top')
+#     ax.yaxis.set_label_position('right')
+
+#     x_ticks = np.linspace(np.min(Y), np.max(Y), 3)
+#     y_ticks = np.linspace(np.min(X), np.max(X), 3)
+
+#     ax.set_xticks(x_ticks)
+#     ax.set_yticks(y_ticks)
+
+#     ax.tick_params(direction='in', labelsize=12)
+
+#     # -----------------------------
+#     # COLORBAR
+#     # -----------------------------
+#     cbar_ax = fig.add_axes([0.88, 0.1, 0.025, 0.8])
+#     cbar = fig.colorbar(c, cax=cbar_ax, orientation='vertical')
+
+#     ticks = np.linspace(vmin, vmax, 5)
+#     cbar.set_ticks(ticks)
+#     cbar.ax.yaxis.set_major_formatter('{:.1f}'.format)
+
+#     cbar.ax.tick_params(labelsize=12, direction='in')
+#     cbar.set_label("µm", fontsize=14)
+
+#     # -----------------------------
+#     # SAVE / SHOW
+#     # -----------------------------
+#     if save_path is not None:
+#         plt.savefig(save_path, dpi=300, bbox_inches='tight')
+#         plt.close()
+#     else:
+#         plt.show()
 
 
 # ==========================================================

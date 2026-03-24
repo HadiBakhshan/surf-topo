@@ -24,6 +24,6 @@
     "length": 5.7
   },
   "integration": {
-    "delta_t": 0.8e-6
+    "delta_t": 1e-6
   }
 }

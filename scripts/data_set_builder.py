@@ -96,7 +96,8 @@ def compute_derived(sample, config, grid_cfg, terminal_output=False):
     grid_m = grid_base * 2
     grid_n = grid_base
 
-    Lx = length * 1.31
+    # Lx = length * 1.4
+    Lx = length * 2
     Ly = length
 
     grid_t = max(grid_m, grid_n) * 2
@@ -284,12 +285,12 @@ def main(config_path):
             # Create datasets
             # -----------------------------
             X_ds = f.create_dataset("X", (n_samples, n_inputs), dtype=np.float32)
-            Y_ds = f.create_dataset("Y", (n_samples, 3), dtype=np.float32)
+            Y_ds = f.create_dataset("Y", (n_samples, 2), dtype=np.float32)
 
             keys = list(samples[0].keys())
 
             f.attrs["input_keys"] = json.dumps(keys)
-            f.attrs["output_keys"] = json.dumps(["Ra", "Rq", "Rz"])
+            f.attrs["output_keys"] = json.dumps(["Sa", "Sz"])
 
             # -----------------------------
             # Loop through samples
@@ -305,27 +306,31 @@ def main(config_path):
                 # Extract Z values only and convert to µm
                 # -----------------------------
                 Z_mm = surface[:, 2]           # Only Z column
+
+                # Z_mm = surface[:, 2].reshape((m + 1, n + 1))
+
                 Z_um = Z_mm * 1000             # Convert to µm
-                z_flat = Z_um[~np.isnan(Z_um)] # Remove NaNs
+                # z_flat = Z_um[~np.isnan(Z_um)] # Remove NaNs
+
+                z_flat = Z_um.ravel()
 
                 # -----------------------------
                 # Compute roughness metrics
                 # -----------------------------
                 z_mean = np.mean(z_flat)
 
-                Ra = np.mean(np.abs(z_flat - z_mean))
-                Rq = np.sqrt(np.mean((z_flat - z_mean)**2))
-                Rz = np.max(z_flat) - np.min(z_flat)
+                Sa = np.mean(np.abs(z_flat - z_mean))
+                Sz = np.max(z_flat) - np.min(z_flat)
 
                 # -----------------------------
                 # Save inputs and outputs
                 # -----------------------------
                 X_ds[i] = np.array([sample[k] for k in keys], dtype=np.float32)
-                Y_ds[i] = np.array([Ra, Rq, Rz], dtype=np.float32)
+                Y_ds[i] = np.array([Sa, Sz], dtype=np.float32)
 
                 # Optional: print first few samples for verification
                 if i < 5:
-                    print(f"Sample {i}: Ra={Ra:.4f}, Rq={Rq:.4f}, Rz={Rz:.4f}")
+                    print(f"Sample {i}: Sa={Sa:.4f}, Sz={Sz:.4f}")
 
         print("Dataset saved to:", output_path)
 
